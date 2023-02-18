@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+
+    <title>Boxed Header</title>
+  </head>
+  <body>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+    <div id="app">
+        
+        <div id="svgcontainer" ref="svgcontainer">
+          <svg
+          :width="width+padding*2"
+          :height="height+padding*2"
+          :viewBox="`0 0 ${width+padding*2} ${height+padding*2}`"
+          version="1.1"
+          id="svg5"
+          inkscape:version="1.2.1 (9c6d41e410, 2022-07-14)"
+          xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+          xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+          xmlns="http://www.w3.org/2000/svg"
+          xmlns:svg="http://www.w3.org/2000/svg">
+         <defs
+            id="defs2">
+           <rect
+              x="342.77368"
+              y="0"
+              width="1231.3043"
+              height="157.02481"
+              id="rect1749" />
+         </defs>
+         <g
+            inkscape:label="Layer 1"
+            inkscape:groupmode="layer"
+            id="layer1">
+           <path
+              :style="`fill:none;stroke:${ringColor};stroke-width:${line};stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;stroke-dasharray:none`"
+              :d="`m ${width-titleDelta},${padding} h ${titleDelta} V ${height} H ${padding} V ${padding} h ${titleDelta}`"
+              id="path1693" />
+           <text
+              xml:space="preserve"
+              id="text1747"
+              :style="`fill:${textColor};font-size:${labelFont}px;text-anchor: middle;line-height:1.25;font-family:Tahoma;font-variant-ligatures:none;text-align:center;letter-spacing:0px;word-spacing:0px;white-space:pre;`">
+              <tspan
+                :x="width/2+padding/2"
+                :y="padding+labelFont/3"
+                id="tspan2123">{{text}}</tspan></text>
+         </g>
+       </svg>
+        </div>
+
+        <div class="d-block"><input class="m-1" type="number" min="50"  v-model="titleDelta"> (delta)</div>
+        <div class="d-block"><input class="m-1" type="number" min="100"  v-model="height"/>(height)</div>
+        <div class="d-block"><input class="m-1" type="number" min="100"  v-model="width"/>(width)</div>
+        <div class="d-block"><input class="m-1" type="number" min="10"  v-model="padding"/>(padding)</div>
+        <div class="d-block"><input class="m-1" type="number" min="1"  v-model="line"/>(line size)</div>
+        <div class="d-block"><input class="m-1" :style="`background-color:${ringColor}`"   v-model="ringColor"/>(line color)</div>
+
+        <div class="d-block"><input class="m-1"  v-model="text"/>(text)</div>
+        <div class="d-block"><input class="m-1" type="number" min="12"  v-model="labelFont"/>(font size)</div>
+        <div class="d-block"><input class="m-1" :style="`background-color:${textColor}`" min="12"  v-model="textColor"/>(text color)</div>
+        
+        
+        <div class="d-block"><input class="m-1"  v-model="download"/>(file name)</div>
+        <a class="m-1 btn btn-primary" id="downloadButton" :download="download" >Download</a>
+
+    </div>
+    
+    <script>
+      const { createApp } = Vue
+    
+      
+      function downloadSVG() {
+        blob = new Blob([document.getElementById("svgcontainer").innerHTML], {type: "octet/stream"});
+        document.getElementById("downloadButton").href = window.URL.createObjectURL(blob);
+      }
+
+      createApp({
+        data() {
+          return {
+             titleDelta:150,
+             height:500,
+             width:600,
+             padding: 50,
+             line: 5,
+             text: " label ",
+             labelFont:24,
+             textColor:"#555",
+             ringColor:"#888",
+             download:"lightbox.svg",
+          }
+        },
+        mounted() {
+            //hacky code by that just the way it is, using data update create a loop
+            this.$nextTick(() => {
+                downloadSVG()
+            })
+        },
+        updated() {
+            //hacky code by that just the way it is, using data update create a loop
+            this.$nextTick(() => {
+                downloadSVG()
+            })
+        },
+        computed: {
+              cssgaugeStyle() {
+                // "fill:none;stroke:#00b436;stroke-width:91.9886;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:250, 1159.06;stroke-dashoffset:0;stroke-opacity:1;paint-order:markers fill stroke;stop-color:#000000".split(";").map(l=> l.split(":"))
+                let stylemap = [
+                    [ "fill", "none" ],
+                    [ "stroke", this.percentageColor ],
+                    [ "stroke-width", "70" ],
+                    [ "stroke-linecap", "butt" ],
+                    [ "stroke-linejoin", "round" ],
+                    [ "stroke-dasharray", [(this.percentage/this.max*864.693),"1159.06"].join(",")],
+                    [ "stroke-dashoffset", "0" ],
+                    [ "stroke-opacity", "1" ],
+                    [ "paint-order", "markers fill stroke" ],
+                    [ "stop-color", "#000000" ]
+                ]
+
+
+
+                return stylemap.map(l => l.join(":")).join(";")
+            },
+            cssmaxStyle() {
+                //let style="fill:none;stroke:#9bb4a2;stroke-width:91.9886;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:864.693, 1159.06;stroke-dashoffset:0;stroke-opacity:1;paint-order:markers fill stroke;stop-color:#000000"
+                //style.split(";").map(l=> l.split(":"))
+                let stylemap = [
+                    [ "fill", "none" ],
+                    [ "stroke", this.lightColor ],
+                    [ "stroke-width", "90" ],
+                    [ "stroke-linecap", "butt" ],
+                    [ "stroke-linejoin", "round" ],
+                    [ "stroke-dasharray", [(100/this.max*864.693),"1159.06"].join(",") ],
+                    [ "stroke-dashoffset", "0" ],
+                    [ "stroke-opacity", "1" ],
+                    [ "paint-order", "markers fill stroke" ],
+                    [ "stop-color", "#000000" ]
+                ]
+                return stylemap.map(l => l.join(":")).join(";")
+            }
+        }
+      }).mount('#app')
+    </script>
+  </body>
+</html>
+
+

@@ -80,7 +80,7 @@
                <text
                  xml:space="preserve"
                  id="text3332"
-                 style="font-size:70px;line-height:1.25;text-anchor: middle;font-family:Arial;-inkscape-font-specification:'Arial, Normal';font-variant-ligatures:none;text-align:center;letter-spacing:0px;word-spacing:0px;white-space:pre;shape-inside:url(#rect3334);display:inline;fill:#49515f"
+                 :style="`font-size:70px;line-height:1.25;text-anchor: middle;font-family:Arial;-inkscape-font-specification:'Arial, Normal';font-variant-ligatures:none;text-align:center;letter-spacing:0px;word-spacing:0px;white-space:pre;shape-inside:url(#rect3334);display:inline;fill:${textColor}`"
                  x="275"
                  y="300">
                  <tspan
@@ -90,7 +90,7 @@
                 <text
                  xml:space="preserve"
                  id="text3332"
-                 style="font-size:15px;line-height:1.25;text-anchor: middle;font-family:Arial;-inkscape-font-specification:'Arial, Normal';font-variant-ligatures:none;text-align:center;letter-spacing:0px;word-spacing:0px;white-space:pre;shape-inside:url(#rect3334);display:inline;fill:#49515f"
+                 :style="`font-size:15px;line-height:1.25;text-anchor: middle;font-family:Arial;-inkscape-font-specification:'Arial, Normal';font-variant-ligatures:none;text-align:center;letter-spacing:0px;word-spacing:0px;white-space:pre;shape-inside:url(#rect3334);display:inline;fill:${textColor}`"
                  x="275"
                  y="350">
                   <tspan
@@ -101,7 +101,7 @@
                 <text
                  xml:space="preserve"
                  id="text3332"
-                 :style="`font-size:${labelFont}px;line-height:1.25;text-anchor: middle;font-family:Arial;-inkscape-font-specification:'Arial, Normal';font-variant-ligatures:none;text-align:center;letter-spacing:0px;word-spacing:0px;white-space:pre;shape-inside:url(#rect3334);display:inline;fill:#49515f`"
+                 :style="`font-size:${labelFont}px;line-height:1.25;text-anchor: middle;font-family:Arial;-inkscape-font-specification:'Arial, Normal';font-variant-ligatures:none;text-align:center;letter-spacing:0px;word-spacing:0px;white-space:pre;shape-inside:url(#rect3334);display:inline;fill:${textColor}`"
                  x="275"
                  y="450">
                   <tspan
@@ -112,39 +112,53 @@
           </g>
         </svg>
         </div>
-        <input class="m-1 d-block" type="number" min="0"  v-model="percentage">
-        <input class="m-1 d-block" type="number" min="0"  v-model="max"/>
-        <input class="m-1 d-block"  v-model="text"/>
-        <input class="m-1 d-block" type="number" min="12"  v-model="labelFont"/>
-        <input class="m-1 d-block" :style="`background-color:${lightColor}`" min="12"  v-model="lightColor"/>
-        <input class="m-1 d-block" :style="`background-color:${percentageColor}`" min="12"  v-model="percentageColor"/>
-        <input class="m-1 d-block" :style="`background-color:${ringColor}`" min="12"  v-model="ringColor"/>
-        <a class="m-1 btn btn-primary" id="downloadButton" download="gauge.svg" >Download</a>
+        <div class="d-block"><input class="m-1" type="number" min="0"  v-model="percentage">(percentage showing)</div>
+        <div class="d-block"><input class="m-1" type="number" min="0"  v-model="max"/>(scale / max number)</div>
+        <div class="d-block"><input class="m-1"  v-model="text"/>(text)</div>
+        <div class="d-block"><input class="m-1" type="number" min="12"  v-model="labelFont"/>(font size)</div>
+        <div class="d-block"><input class="m-1" :style="`background-color:${lightColor}`" min="12"  v-model="lightColor"/>(100% color)</div>
+        <div class="d-block"><input class="m-1" :style="`background-color:${percentageColor}`" min="12"  v-model="percentageColor"/>(pct color)</div>
+        <div class="d-block"><input class="m-1" :style="`background-color:${ringColor}`" min="12"  v-model="ringColor"/>(ring color)</div>
+        <div class="d-block"><input class="m-1" :style="`background-color:${textColor}`" min="12"  v-model="textColor"/>(text color)</div>
+
+        <div class="d-block"><input class="m-1"  v-model="download"/>(file name)</div>
+        <a class="m-1 btn btn-primary" id="downloadButton" :download="download" >Download</a>
+        
     </div>
     
     <script>
       const { createApp } = Vue
     
       
-      
+      function downloadSVG() {
+        blob = new Blob([document.getElementById("svgcontainer").innerHTML], {type: "octet/stream"});
+        document.getElementById("downloadButton").href = window.URL.createObjectURL(blob);
+        document.getElementById("viewButton").href = window.URL.createObjectURL(blob);
+      }
 
       createApp({
         data() {
           return {
-             percentage: 2,
-             max: 100,
+             percentage: 75,
+             max: 150,
              text: " label ",
              labelFont:36,
              lightColor:"#afd3af",
              percentageColor:"#379237",
-             ringColor:"#54B435"
+             ringColor:"#54B435",
+             textColor:"#555",
+             download:"gauge.svg",
           }
+        },
+        mounted() {
+          this.$nextTick(() => {
+                downloadSVG()
+          })
         },
         updated() {
             //hacky code by that just the way it is, using data update create a loop
             this.$nextTick(() => {
-                blob = new Blob([document.getElementById("svgcontainer").innerHTML], {type: "octet/stream"});
-                document.getElementById("downloadButton").href = window.URL.createObjectURL(blob);
+                downloadSVG()
             })
         },
         computed: {
