@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+
+    <title>Gauge</title>
+  </head>
+  <body>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+    <div id="app">
+        
+        <div id="svgcontainer" ref="svgcontainer">
+        <svg
+           width="500"
+           height="500"
+           viewBox="0 0 500 500"
+           version="1.1"
+           id="svg5888"
+           inkscape:version="1.2.1 (9c6d41e410, 2022-07-14)"
+           sodipodi:docname="plaingauge.svg"
+           xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+           xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+           xmlns="http://www.w3.org/2000/svg"
+           xmlns:svg="http://www.w3.org/2000/svg">
+          <defs
+             id="defs5885">
+            <rect
+               x="312.78897"
+               y="476.6308"
+               width="213.94223"
+               height="148.94711"
+               id="rect3334" />
+          </defs>
+          <g
+             inkscape:label="Layer 1"
+             inkscape:groupmode="layer"
+             id="layer1"
+             transform="translate(-25.230498,-29.529662)">
+            <g
+               id="g7893"
+               transform="matrix(0.88063897,0,0,0.89729635,32.8518,28.708719)">
+              <circle
+                :style="cssmaxStyle"
+                  id="max"
+                 cx="3.0399764"
+                 cy="-392.27469"
+                 r="183.97717"
+                 transform="rotate(135)" />
+              <circle
+                 id="percentage"
+                 :style="cssgaugeStyle"
+                 cx="3.0399764"
+                 cy="-392.27469"
+                 r="183.97717"
+                 transform="rotate(135)" />
+
+            <path
+                 style="fill:#c0c9da;stroke:#9bb4a2;stroke-width:10;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1"
+                 d="m 364,372 76,75"
+                 id="maxstop" />
+            <path
+                 style="fill:#c0c9da;stroke:#9bb4a2;stroke-width:10;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1"
+                 d="m 186,372 -76,75"
+                 id="minstart" />              
+              <circle
+                 style="fill:none;stroke:#007623;stroke-width:12.2652;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:markers fill stroke;stop-color:#000000"
+                 id="path2754"
+                 cx="275.23053"
+                 cy="279.52969"
+                 r="243.86743" />
+
+
+
+               <text
+                 xml:space="preserve"
+                 id="text3332"
+                 style="font-size:70px;line-height:1.25;text-anchor: middle;font-family:Arial;-inkscape-font-specification:'Arial, Normal';font-variant-ligatures:none;text-align:center;letter-spacing:0px;word-spacing:0px;white-space:pre;shape-inside:url(#rect3334);display:inline;fill:#49515f"
+                 x="280"
+                 y="300">
+                 <tspan
+                     style="font-family:Tahoma;-inkscape-font-specification:Tahoma"
+                     id="pcttext">{{percentage}}%</tspan>
+                </text>   
+                <text
+                 xml:space="preserve"
+                 id="text3332"
+                 style="font-size:15px;line-height:1.25;text-anchor: middle;font-family:Arial;-inkscape-font-specification:'Arial, Normal';font-variant-ligatures:none;text-align:center;letter-spacing:0px;word-spacing:0px;white-space:pre;shape-inside:url(#rect3334);display:inline;fill:#49515f"
+                 x="275"
+                 y="350">
+                  <tspan
+                     style="font-family:Tahoma;-inkscape-font-specification:Tahoma;"
+                     id="maxtext">{{(max != 100)?`Scale ${max}`:""}}</tspan>
+                </text>  
+
+                <text
+                 xml:space="preserve"
+                 id="text3332"
+                 :style="`font-size:${labelfont}px;line-height:1.25;text-anchor: middle;font-family:Arial;-inkscape-font-specification:'Arial, Normal';font-variant-ligatures:none;text-align:center;letter-spacing:0px;word-spacing:0px;white-space:pre;shape-inside:url(#rect3334);display:inline;fill:#49515f`"
+                 x="260"
+                 y="450">
+                  <tspan
+                     style="font-family:Tahoma;-inkscape-font-specification:Tahoma;"
+                     id="maxtext">{{text}}</tspan>
+                </text>  
+            </g>
+          </g>
+        </svg>
+        </div>
+        <input class="m-1 d-block" type="number" min="0"  v-model="percentage">
+        <input class="m-1 d-block" type="number" min="0"  v-model="max"/>
+        <input class="m-1 d-block"  v-model="text"/>
+        <input class="m-1 d-block" type="number" min="12"  v-model="labelfont"/>
+        <a class="m-1 btn btn-primary" id="downloadButton" download="gauge.svg" >Download</a>
+    </div>
+    
+    <script>
+      const { createApp } = Vue
+    
+      
+      
+
+      createApp({
+        data() {
+          return {
+             percentage: 2,
+             max: 100,
+             text: " label ",
+             labelfont:36,
+          }
+        },
+        updated() {
+            //hacky code by that just the way it is, using data update create a loop
+            this.$nextTick(() => {
+                blob = new Blob([document.getElementById("svgcontainer").innerHTML], {type: "octet/stream"});
+                document.getElementById("downloadButton").href = window.URL.createObjectURL(blob);
+            })
+        },
+        computed: {
+              cssgaugeStyle() {
+                // "fill:none;stroke:#00b436;stroke-width:91.9886;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:250, 1159.06;stroke-dashoffset:0;stroke-opacity:1;paint-order:markers fill stroke;stop-color:#000000".split(";").map(l=> l.split(":"))
+                let stylemap = [
+                    [ "fill", "none" ],
+                    [ "stroke", "#00b436" ],
+                    [ "stroke-width", "91.9886" ],
+                    [ "stroke-linecap", "butt" ],
+                    [ "stroke-linejoin", "round" ],
+                    [ "stroke-dasharray", [(this.percentage/this.max*864.693),"1159.06"].join(",")],
+                    [ "stroke-dashoffset", "0" ],
+                    [ "stroke-opacity", "1" ],
+                    [ "paint-order", "markers fill stroke" ],
+                    [ "stop-color", "#000000" ]
+                ]
+
+
+
+                return stylemap.map(l => l.join(":")).join(";")
+            },
+            cssmaxStyle() {
+                //let style="fill:none;stroke:#9bb4a2;stroke-width:91.9886;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:864.693, 1159.06;stroke-dashoffset:0;stroke-opacity:1;paint-order:markers fill stroke;stop-color:#000000"
+                //style.split(";").map(l=> l.split(":"))
+                let stylemap = [
+                    [ "fill", "none" ],
+                    [ "stroke", "#9bb4a2" ],
+                    [ "stroke-width", "91.9886" ],
+                    [ "stroke-linecap", "butt" ],
+                    [ "stroke-linejoin", "round" ],
+                    [ "stroke-dasharray", [(100/this.max*864.693),"1159.06"].join(",") ],
+                    [ "stroke-dashoffset", "0" ],
+                    [ "stroke-opacity", "1" ],
+                    [ "paint-order", "markers fill stroke" ],
+                    [ "stop-color", "#000000" ]
+                ]
+                return stylemap.map(l => l.join(":")).join(";")
+            }
+        }
+      }).mount('#app')
+    </script>
+  </body>
+</html>
+
+
