@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link href="./CascadiaMono.css" rel="stylesheet">
+
+    <title>Boxed Header</title>
+  </head>
+  <body>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+    <div id="app">
+        <div class="d-block"><input class="m-1"  v-model="title"/>(title)</div>
+        <div class="d-block"><textarea :cols="terminalCols" :rows="terminalRows" v-model="consoleText" :style="`font-family:${fontFamily};`">
+        </textarea></div>
+
+        <div id="svgcontainer" ref="svgcontainer">
+          <svg
+          :width="totalWidth"
+          :height="totalHeight"
+          :viewBox="`0 0 ${totalWidth} ${totalHeight}`"
+          version="1.1"
+          id="svg5"
+          inkscape:version="1.2.1 (9c6d41e410, 2022-07-14)"
+          sodipodi:docname="shell.svg"
+          xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+          xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+          xmlns="http://www.w3.org/2000/svg"
+          xmlns:svg="http://www.w3.org/2000/svg"  >
+         <defs
+            id="defs2">
+         </defs>
+         <g 
+            id="layer1">
+            <!-- (cap absolute position) C controlpoint1 controlpoint2 target // make sure one of the controlpoint is the same as previous or next point (depending on turn) to make easy corners-->
+           <path
+              id="title"
+              :style="`fill:${ringColor};fill-opacity:1;stroke:none;stroke-width:0;stroke-linecap:round;stroke-linejoin:round;paint-order:markers fill stroke;stop-color:#000000`"
+              :d="`M ${padding+bending},${padding} C ${padding+bending},${padding} ${padding},${padding} ${padding},${padding+bending} v ${textFont} H ${width} v ${-textFont} C ${width},${padding} ${width-bending},${padding} ${width-bending},${padding}   z`" />
+           <path
+              id="consoleline"
+              :style="`fill:${bgColor};fill-opacity:${bgOpacity/100};stroke:${ringColor};stroke-width:${line};stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke;stop-color:#000000`"
+              :d="`M ${padAndLine},${topConsole} V ${height-bending} C ${padAndLine},${height} ${padAndLine+bending},${height} ${padAndLine+bending},${height} H ${width-(bending)} C ${width-(bending)},${height} ${width-line/2},${height} ${width-line/2},${height-bending} V ${topConsole} Z`" />
+           <text
+              xml:space="preserve"
+              id="textTitle"
+              :style="`font-size:${textFont+4}px;line-height:1.25;font-family:'${fontFamily}';font-variant-ligatures:none;letter-spacing:0px;word-spacing:0px;white-space:pre;display:inline;fill:${titleColor};stroke:none`"><tspan
+                :x="bending+padding"
+                :y="textFont+12+padding"
+                id="titleposition"><tspan
+                  style="font-weight:bold;"
+                  id="titlebold">&gt;{{title}}</tspan></tspan></text>
+           <text :x="bending+padding" y="75"
+              xml:space="preserve"
+              id="textConsole"
+              :style="`fill:${textColor};font-size:${textFont}px;line-height:1.25;font-family:'${fontFamily}';font-variant-ligatures:none;letter-spacing:0px;word-spacing:0px;white-space:pre;display:inline`">
+                <tspan :x="bending+padding" :y="topConsole+5+((index+1)*1.25*textFont)" :id="`ln${index}-p`"  v-for="(ln, index) in consoleComputed">
+                <tspan :style="`font-family:'${fontFamily}';`" :id="`ln${index}-t`" >{{ln}}</tspan></tspan>
+              </text>
+         </g>
+       </svg>       
+        </div>
+
+        <div class="d-block"><input class="m-1" :style="`background-color:${ringColor}`"  v-model="ringColor"/>(terminal color)</div>
+        <div class="d-block"><input class="m-1" :style="`background-color:${bgColor}`" v-model="bgColor"/><input type="number" v-model="bgOpacity">( Background color)</div>
+        <div class="d-block"><input class="m-1" :style="`background-color:${titleColor}`" v-model="titleColor"/>(header text color)</div>
+        <div class="d-block"><input class="m-1" :style="`background-color:${textColor}`" min="12"  v-model="textColor"/>(text color)</div>
+
+        
+
+        
+        
+
+
+        <div class="d-block"><input class="m-1" type="number" min="10"  v-model="padding"/>(padding)</div>
+        <div class="d-block"><input class="m-1" type="number" min="1"  v-model="line"/>(line size)</div>
+        <div class="d-block"><input class="m-1" type="number" min="20"  v-model="terminalCols"/>(terminal Cols)</div>
+        <div class="d-block"><input class="m-1" type="number" min="1"  v-model="terminalRows"/>(terminal Rows)</div>
+        <div class="d-block"><input class="m-1" type="number" v-model="ratioTerminalCols"/>(ratio font to col width tuning pct)</div>
+        <div class="d-block"><input class="m-1" type="number" v-model="ratioTerminalRows"/>(ratio font to row height tuning pct)</div>
+
+        <div class="d-block"><input class="m-1"  v-model="fontFamily"/>(Font Family)</div>
+        
+        <div class="d-block"><input class="m-1" type="number" min="8"  v-model="textFont"/>(font size)</div>
+
+
+        <div class="d-block"><input class="m-1"  v-model="download"/>(file name)</div>
+        <a class="m-1 btn btn-primary" id="downloadButton" :download="download" >Download</a>
+        <a class="m-1 btn btn-secondary" href="https://github.com/microsoft/cascadia-code/releases">Get Cascadia Font</a>
+    </div>
+    
+    <script>
+      const { createApp } = Vue
+    
+      
+      function downloadSVG() {
+        blob = new Blob([document.getElementById("svgcontainer").innerHTML], {type: "octet/stream"});
+        document.getElementById("downloadButton").href = window.URL.createObjectURL(blob);
+      }
+
+      createApp({
+        data() {
+          return {
+             padding: 10,
+             line: 8,
+             fontFamily: "Cascadia Mono",
+             title: " How to use Windows dir command ",
+             consoleText:`C:\\fsdfsdfdsfds>dir
+Volume in drive C is Windows
+Volume Serial Number is fdsdsfdf
+
+Directory of C:\\fdsdfsdf
+
+10/02/2023  13:43    <DIR>          .
+31/01/2023  19:27    <DIR>          ..
+27/03/2020  12:03    <DIR>          sfd
+09/12/2020  13:53    <DIR>          fsd
+01/04/2021  15:15    <DIR>          fds
+01/09/2021  09:04                   fsdfds
+28/01/2020  20:26    <DIR>          fdssdf
+30/11/2020  10:52    <DIR>          fds
+19/02/2023  15:34    <DIR>          sfddsf
+10/02/2023  14:18    <DIR>          dsfdfs
+02/12/2022  13:34    <DIR>          fdsfds
+22/08/2022  08:09    <DIR>          sfdfsd`,
+             textFont:20,
+             textColor:"#555",
+             titleColor:"#eee",
+             bgColor:"#eee",
+             bgOpacity:90,
+             ringColor:"#5c50db",
+             download:"codebox.svg",
+             terminalCols: 80,
+             ratioTerminalCols:62,
+             terminalRows: 18,
+             ratioTerminalRows:105,
+             bending:30,
+          }
+        },
+        mounted() {
+            //hacky code by that just the way it is, using data update create a loop
+            this.$nextTick(() => {
+                downloadSVG()
+            })
+        },
+        updated() {
+            //hacky code by that just the way it is, using data update create a loop
+            this.$nextTick(() => {
+                downloadSVG()
+            })
+        },
+        computed: {
+              padAndLine() { return this.padding+(this.line/2)},
+              topConsole() { return this.textFont+this.padding+this.bending},
+              width() { return this.terminalCols*this.textFont*(this.ratioTerminalCols/100)},
+              totalWidth() { return this.width+this.padding*2 },
+              height() { return this.terminalRows*1.25*this.textFont*(this.ratioTerminalRows/100) + this.topConsole +10},
+              totalHeight() { return this.height+this.padding*2},
+              consoleComputed() {
+                return this.consoleText.split("\n")
+              }
+        }
+      }).mount('#app')
+    </script>
+  </body>
+</html>
+
+
