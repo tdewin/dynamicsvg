@@ -45,7 +45,7 @@
            <path
               id="consoleline"
               :style="`fill:${bgColor};fill-opacity:${bgOpacity/100};stroke:${ringColor};stroke-width:${line};stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke;stop-color:#000000`"
-              :d="`M ${padAndLine},${topConsole} V ${height-bending} C ${padAndLine},${height} ${padAndLine+bending},${height} ${padAndLine+bending},${height} H ${width-(bending)} C ${width-(bending)},${height} ${width-line/2},${height} ${width-line/2},${height-bending} V ${topConsole} Z`" />
+              :d="`M ${padAndLine},${topConsole} V ${height-bending} C ${padAndLine},${height-line/2} ${padAndLine+bending},${height-line/2} ${padAndLine+bending},${height-line/2} H ${width-(bending)} C ${width-(bending)},${height-line/2} ${width-line/2},${height-line/2} ${width-line/2},${height-bending-line/2} V ${topConsole} Z`" />
            <text
               xml:space="preserve"
               id="textTitle"
