@@ -9,13 +9,13 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
     <link href="./CascadiaMono.css" rel="stylesheet">
 
-    <title>Boxed Header</title>
+    <title>Code Box</title>
   </head>
   <body>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 
     <div id="app">
-        <div class="d-block"><input class="m-1"  v-model="title"/>(title)</div>
+        <div class="d-block"><input class="m-1  w-50"  v-model="title"/>(title)</div>
         <div class="d-block"><textarea :cols="terminalCols" :rows="terminalRows" v-model="consoleText" :style="`font-family:${fontFamily};`">
         </textarea></div>
 
@@ -37,27 +37,28 @@
             <rect
               :x="bending+padding"
               :y="textFont+12+padding"
-              :width="width"
-              :height="12+padding"
+              :width="width-2*bending"
+              :height="textFont+12"
               id="rectTitle" /> 
             <rect
               :x="bending+padding" 
               :y="topConsole+5+(1.25*textFont)"
-              :width="width"
-              :height="heightConsole"
+              :width="width-2*bending"
+              :height="heightConsole-(1.25*textFont)"
               id="rectConsole" /> 
          </defs>
          <g 
             id="layer1">
+            
             <!-- (cap absolute position) C controlpoint1 controlpoint2 target // make sure one of the controlpoint is the same as previous or next point (depending on turn) to make easy corners-->
            <path
               id="title"
               :style="`fill:${ringColor};fill-opacity:1;stroke:none;stroke-width:0;stroke-linecap:round;stroke-linejoin:round;paint-order:markers fill stroke;stop-color:#000000`"
-              :d="`M ${padding+bending},${padding} C ${padding+bending},${padding} ${padding},${padding} ${padding},${padding+bending} v ${textFont} H ${width} v ${-textFont} C ${width},${padding} ${width-bending},${padding} ${width-bending},${padding}   z`" />
+              :d="`M ${padding+bending},${padding} C ${padding+bending},${padding} ${padding},${padding} ${padding},${padding+bending} v ${textFont} H ${width+padding} v ${-textFont} C ${width+padding},${padding} ${width+padding-bending},${padding} ${width+padding-bending},${padding}   z`" />
            <path
               id="consoleline"
               :style="`fill:${bgColor};fill-opacity:${bgOpacity/100};stroke:${ringColor};stroke-width:${line};stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers fill stroke;stop-color:#000000`"
-              :d="`M ${padAndLine},${topConsole} V ${height-bending} C ${padAndLine},${height-line/2} ${padAndLine+bending},${height-line/2} ${padAndLine+bending},${height-line/2} H ${width-(bending)} C ${width-(bending)},${height-line/2} ${width-line/2},${height-line/2} ${width-line/2},${height-bending-line/2} V ${topConsole} Z`" />
+              :d="`M ${padAndLine},${topConsole} V ${height+padding-bending} C ${padAndLine},${height+padding-line/2} ${padAndLine+bending},${height+padding-line/2} ${padAndLine+bending},${height+padding-line/2} H ${width+padding-(bending)} C ${width+padding-(bending)},${height+padding-line/2} ${width+padding-line/2},${height+padding-line/2} ${width+padding-line/2},${height+padding-bending-line/2} V ${topConsole} Z`" />
            <text
               :x="bending+padding"
               :y="textFont+12+padding"
@@ -79,10 +80,10 @@
        </svg>       
         </div>
 
-        <div class="d-block"><input class="m-1" :style="`background-color:${ringColor}`"  v-model="ringColor"/>(terminal color)</div>
-        <div class="d-block"><input class="m-1" :style="`background-color:${bgColor}`" v-model="bgColor"/><input type="number" v-model="bgOpacity">( Background color)</div>
-        <div class="d-block"><input class="m-1" :style="`background-color:${titleColor}`" v-model="titleColor"/>(header text color)</div>
-        <div class="d-block"><input class="m-1" :style="`background-color:${textColor}`" min="12"  v-model="textColor"/>(text color)</div>
+        <div class="d-block"><input class="m-1 w-50" :style="`background-color:${ringColor}`"  v-model="ringColor"/>(terminal color)</div>
+        <div class="d-block"><input class="m-1 w-50" :style="`background-color:${bgColor}`" v-model="bgColor"/><input type="number" v-model="bgOpacity">( Background color)</div>
+        <div class="d-block"><input class="m-1 w-50" :style="`background-color:${titleColor}`" v-model="titleColor"/>(header text color)</div>
+        <div class="d-block"><input class="m-1  w-50" :style="`background-color:${textColor}`" min="12"  v-model="textColor"/>(text color)</div>
 
         
 
@@ -90,20 +91,21 @@
         
 
 
-        <div class="d-block"><input class="m-1" type="number" min="10"  v-model="padding"/>(padding)</div>
-        <div class="d-block"><input class="m-1" type="number" min="1"  v-model="line"/>(line size)</div>
-        <div class="d-block"><input class="m-1" type="number" min="20"  v-model="terminalCols"/>(terminal Cols)</div>
-        <div class="d-block"><input class="m-1" type="number" min="1"  v-model="terminalRows"/>(terminal Rows)</div>
-        <div class="d-block"><input class="m-1" type="number" v-model="ratioTerminalCols"/>(ratio font to col width tuning pct)</div>
-        <div class="d-block"><input class="m-1" type="number" v-model="ratioTerminalRows"/>(ratio font to row height tuning pct)</div>
+        <div class="d-block"><input class="m-1  w-50" type="number" min="10"  v-model="padding"/>(padding)</div>
+        <div class="d-block"><input class="m-1  w-50" type="number" min="1"  v-model="line"/>(line size)</div>
+        <div class="d-block"><input class="m-1  w-50" type="number" min="20"  v-model="terminalCols"/>(terminal Cols)</div>
+        <div class="d-block"><input class="m-1  w-50" type="number" min="1"  v-model="terminalRows"/>(terminal Rows)</div>
+        <div class="d-block"><input class="m-1  w-50" type="number" v-model="ratioTerminalCols"/>(ratio font to col width tuning pct)</div>
+        <div class="d-block"><input class="m-1  w-50" type="number" v-model="ratioTerminalRows"/>(ratio font to row height tuning pct)</div>
 
-        <div class="d-block"><input class="m-1"  v-model="fontFamily"/>(Font Family)</div>
+        <div class="d-block"><input class="m-1  w-50"  v-model="fontFamily"/>(Font Family)</div>
         
-        <div class="d-block"><input class="m-1" type="number" min="8"  v-model="textFont"/>(font size)</div>
+        <div class="d-block"><input class="m-1  w-50" type="number" min="8"  v-model="textFont"/>(font size)</div>
 
 
-        <div class="d-block"><input class="m-1"  v-model="download"/>(file name)</div>
+        <div class="d-block"><input class="m-1  w-50"  v-model="download"/>(file name)</div>
         <a class="m-1 btn btn-primary" id="downloadButton" :download="download" >Download</a>
+        <a class="m-1 btn btn-secondary" id="saveButton" href="./">Save Link</a>
         <a class="m-1 btn btn-secondary" href="https://github.com/microsoft/cascadia-code/releases">Get Cascadia Font</a>
     </div>
     
@@ -115,6 +117,16 @@
         blob = new Blob([document.getElementById("svgcontainer").innerHTML], {type: "octet/stream"});
         document.getElementById("downloadButton").href = window.URL.createObjectURL(blob);
       }
+      function saveLink(dataObject) {
+        let sb = document.getElementById("saveButton")
+        let searchParams = new URLSearchParams();
+        Object.keys(dataObject).forEach(k=> {
+          searchParams.append(k,dataObject[k])
+        })
+        const parsedUrl = new URL(window.location.href);
+        parsedUrl.search = `?${searchParams.toString()}`
+        sb.href = parsedUrl.toString()
+      }
 
       createApp({
         data() {
@@ -122,6 +134,18 @@
              padding: 10,
              line: 8,
              fontFamily: "Cascadia Mono, monospace",
+             textFont:20,
+             textColor:"#555",
+             titleColor:"#eee",
+             bgColor:"#eee",
+             bgOpacity:90,
+             ringColor:"#5c50db",
+             download:"codebox.svg",
+             terminalCols: 80,
+             ratioTerminalCols:62,
+             terminalRows: 18,
+             ratioTerminalRows:105,
+             bending:30,
              title: " How to use Windows dir command ",
              consoleText:`C:\\fsdfsdfdsfds>dir
 Volume in drive C is Windows
@@ -141,30 +165,33 @@ Directory of C:\\fdsdfsdf
 10/02/2023  14:18    <DIR>          dsfdfs
 02/12/2022  13:34    <DIR>          fdsfds
 22/08/2022  08:09    <DIR>          sfdfsd`,
-             textFont:20,
-             textColor:"#555",
-             titleColor:"#eee",
-             bgColor:"#eee",
-             bgOpacity:90,
-             ringColor:"#5c50db",
-             download:"codebox.svg",
-             terminalCols: 80,
-             ratioTerminalCols:62,
-             terminalRows: 18,
-             ratioTerminalRows:105,
-             bending:30,
           }
         },
-        mounted() {
+        mounted() { 
             //hacky code by that just the way it is, using data update create a loop
             this.$nextTick(() => {
-                downloadSVG()
+              //save your settings via url search bar
+              let params = new URL(location.href).searchParams
+              for (const [k,v] of params.entries()) {
+                if(this[k]) {
+                  if (typeof this[k] == "number") {
+                    this[k] = parseFloat(v)
+                  } else {
+                    this[k] = v
+                  }
+                }
+              }
+              
+
+              downloadSVG()
             })
         },
         updated() {
             //hacky code by that just the way it is, using data update create a loop
             this.$nextTick(() => {
-                downloadSVG()
+              let d = this.$.data
+              saveLink(d)
+              downloadSVG()
             })
         },
         computed: {
