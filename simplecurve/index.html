@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+
+    <title>Simple Curve</title>
+  </head>
+  <body>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+    <div id="app">
+        
+        <div id="svgcontainer" ref="svgcontainer">
+          <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+          <svg
+            :width="width"
+            :height="height"
+             :viewBox="`${0} ${0} ${width} ${height}`"
+             version="1.1"
+             id="svg5"
+             xmlns="http://www.w3.org/2000/svg"
+             xmlns:svg="http://www.w3.org/2000/svg">
+            <defs
+               id="defs2" />
+            <g
+               id="layer1"
+              >
+              <rect
+                :style="`fill:${mainColor[0]};fill-opacity:${mainColor[1]};stroke:none;stroke-width:19.0448;stroke-linecap:square;stroke-linejoin:round;stroke-dasharray:38.0898, 19.0448, 38.0898, 19.0448, 57.1348, 19.0448, 19.0448, 19.0448;stroke-dashoffset:0;paint-order:markers fill stroke;stop-color:#000000`"
+                 id="rect7291"
+                 :width="width"
+                 :height="height"
+                 :x="0"
+                 :y="0"
+                 ry="0"
+                 rx="0" />
+
+              <path v-for="y in pctYLines"
+                 :style="`fill:none;stroke:${lightAxisColor[0]};stroke-width:5;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:${lightAxisColor[1]}`"
+                    :d="`M ${padding},${padding + (innerHeight)*(1-y)} h ${innerWidth}`"
+                    :id="`yAxis-${y}`" />
+              <path v-for="x in pctXLines"
+                 :style="`fill:none;stroke:${lightAxisColor[0]};stroke-width:5;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:${lightAxisColor[1]}`"
+                   :d="`M ${padding + (innerWidth)*x },${padding} v ${innerHeight}`"
+                    :id="`xAxis-${x}`" />
+
+              <!-- x axis-->
+              <path
+              :style="`fill:none;stroke:${lightColor[0]};stroke-width:5;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:${lightColor[1]}`"
+                 :d="`M ${padding},${padding + (innerHeight)*(1-parsed.yOrigin)} h ${innerWidth}`"
+                 id="yAxis" />
+
+
+
+              <!-- y axis-->
+              <path
+              :style="`fill:none;stroke:${lightColor[0]};stroke-width:5;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:${lightColor[1]}`"
+                :d="`M ${padding + (innerWidth)*parsed.xOrigin },${padding} v ${innerHeight}`"
+                 id="xAxis" />
+     
+              
+
+              <path
+              :style="`fill:none;fill-opacity:1;stroke:${pathColor[0]};stroke-width:18.1696;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:${pathColor[1]}`"
+                 :d="`M ${pctPath.map(p=> ((innerWidth)*p[0]+padding)+','+((innerHeight)*(1-p[1])+padding)).join(' ')}`"
+                 id="dPath" />
+            </g>
+          </svg>          
+        </div>
+        <div class="d-block">{{pctYLines}} {{parsed}}</div>
+        <div class="d-block"><input class="m-1" :style="`background-color:${mainColor[0]}`"   v-model="mainColorWA"/>(main color)</div>
+        <div class="d-block"><input class="m-1" :style="`background-color:${pathColor[0]}`"   v-model="pathColorWA"/>(path color)</div>
+        <div class="d-block"><input class="m-1" :style="`background-color:${lightColor[0]}`"   v-model="lightColorWA"/>(light color)</div>
+        <div class="d-block"><input class="m-1" :style="`background-color:${lightAxisColor[0]}`"   v-model="lightAxisColorWA"/>(light extra axis color)</div>
+        <div class="d-block"><input class="m-1"   v-model="zoomOut"/>(zoom out from main points)</div>
+        <div class="d-block">
+          <textarea v-model="points" cols="30" rows="10">
+
+          </textarea>
+        </div>
+        <div class="d-block"><input class="m-1"  v-model="xMin"/><input class="m-1" v-model="xMax"/><input class="m-1"  v-model="yMin"/><input class="m-1"  v-model="yMax"/>(xMin,xMax,yMin,yMax)</div>
+        <div class="d-block"><input class="m-1"   v-model="xLines"/>(x lines parallel with y axis)</div>
+        <div class="d-block"><input class="m-1"   v-model="yLines"/>(y lines parallel with x axis)</div>
+
+        <div class="d-block"><input class="m-1"  v-model="download"/>(file name)</div>
+        <a class="m-1 btn btn-primary" id="downloadButton" :download="download" >Download</a>
+        
+    </div>
+    
+    <script>
+      const { createApp } = Vue
+    
+      const coordinates = new RegExp('([-0-9.]+),([-0-9.]+)', 'mg');
+
+      const alphaColor = new RegExp('(#[0-9a-zA-Z]{3,6})([0-9a-zA-Z]{1,2})?')
+      const convertAlphaColor = function(rgba) {
+        let m = rgba.match(alphaColor)
+        if (m) {
+          //||255 nan converted to 255, parseint(n,hex=16)
+          let a = (((parseInt(m[2],16)||255))/255)
+          return [m[1],a]
+        }
+        return ["#777",1]
+      }
+
+      function downloadSVG() {
+        blob = new Blob([document.getElementById("svgcontainer").innerHTML], {type: "image/svg+xml"});
+        document.getElementById("downloadButton").href = window.URL.createObjectURL(blob);
+        //document.getElementById("viewButton").href = window.URL.createObjectURL(blob);
+      }
+
+      createApp({
+        data() {
+          return {
+             mainColorWA: "#0077ccff",
+             pathColorWA: "#e55",
+             lightColorWA: "#eeeeee88",
+             lightAxisColorWA: "#eeeeee33",
+             height:600,
+             width:1000,
+             padding:20,
+             overlap:5,
+             download:"simplecurve.svg",
+             points: `-7,-7 -3,3 3,-3 7,7`,
+             xMin:-10,
+             xMax:10,
+             yMin:-10,
+             yMax:10,
+             xLines: "-10 -5 5 10",
+             yLines: "-10 -5 5 10",
+             zoomOut: 10,
+          }
+        },
+        mounted() {
+          this.$nextTick(() => {
+                downloadSVG()
+          })
+        },
+        updated() {
+            //hacky code by that just the way it is, using data update create a loop
+            this.$nextTick(() => {
+                downloadSVG()
+            })
+        },
+        computed: {
+              innerHeight() {
+                return this.height-(this.padding*2)
+              },
+              innerWidth() {
+                return this.width-(this.padding*2)
+              },
+              mainColor() { return convertAlphaColor(this.mainColorWA)},
+              pathColor() { return convertAlphaColor(this.pathColorWA)},
+              lightColor() { return convertAlphaColor(this.lightColorWA)},
+              lightAxisColor() { return convertAlphaColor(this.lightAxisColorWA)},
+              parsed() {
+                let p = [...this.points.matchAll(coordinates)].map(m => [parseFloat(m[1]),parseFloat(m[2])]).sort((a,b)=> a[0] - b[0])
+                //by starting with 0, the origin will always be in place
+                let xMax = Math.max(p.reduce((r,test)=> (test[0]>r)?test[0]:r,0 ),this.xMax)
+                let xMin = Math.min(p.reduce((r,test)=> (test[0]<r)?test[0]:r,0 ),this.xMin)
+                let yMax = Math.max(p.reduce((r,test)=> (test[1]>r)?test[1]:r,0 ),this.yMax)
+                let yMin = Math.min(p.reduce((r,test)=> (test[1]<r)?test[1]:r,0 ),this.yMin)
+                
+                //distance, strictly abs not required because we know which one is min and which is max
+                let xDist = Math.abs(xMax - xMin)
+                let yDist = Math.abs(yMax - yMin)
+
+                let zoomOut = this.zoomOut/100
+                xMax = xMax+xDist*zoomOut
+                xMin = xMin-xDist*zoomOut
+                yMax = yMax+yDist*zoomOut
+                yMin = yMin-yDist*zoomOut
+
+                xDist = Math.abs(xMax - xMin)
+                yDist = Math.abs(yMax - yMin)
+
+                let xOrigin = (0 - xMin)/xDist
+                let yOrigin = (0 - yMin)/yDist
+
+                return {points:p,xMin:xMin,xMax:xMax,yMin:yMin,yMax:yMax,xDist:xDist,yDist:yDist,xOrigin:xOrigin,yOrigin:yOrigin}
+              },
+              pctPath() {
+                let parsed = this.parsed
+
+                let pctPath = parsed.points.map(p=> [((p[0]-parsed.xMin)/parsed.xDist),(((p[1]-parsed.yMin)/parsed.yDist))])
+                
+            
+                return pctPath  
+              },
+              pctXLines() {
+                let parsed = this.parsed
+                let xLines = this.xLines.trim().split(" ").map(x=> (parseFloat(x)-parsed.xMin)/parsed.xDist)
+                return xLines
+              },
+              pctYLines() {
+                let parsed = this.parsed
+                let yLines = this.yLines.trim().split(" ").map(y=> (parseFloat(y)-parsed.yMin)/parsed.yDist)
+                return yLines
+              }
+
+        }
+      }).mount('#app')
+    </script>
+  </body>
+</html>
+
+

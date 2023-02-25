@@ -6,3 +6,5 @@ Some dynamic svg that you can download for further editing
 * [gauge](https://tdewin.github.io/dynamicsvg/gauge)
 * [boxedheader](https://tdewin.github.io/dynamicsvg/boxedheader)
 * [codebox](https://tdewin.github.io/dynamicsvg/codebox)
+* [simplecurve](https://tdewin.github.io/dynamicsvg/simplecurve)
+
