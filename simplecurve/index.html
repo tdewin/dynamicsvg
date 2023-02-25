@@ -72,7 +72,7 @@
                 <path v-for="p in pctPath"
               :style="`fill:${colors.path.c};fill-opacity:${colors.path.t/100};stroke:${colors.path.c};stroke-width:0;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:0`"
                  :d="`M ${((innerWidth)*p[0]+padding-blockWidth/2)},${((innerHeight)*(1-p[1])+padding)} h ${blockWidth} V ${padding + (innerHeight)*(1-parsed.yOrigin)+3*(p[2])} h ${-blockWidth} z`"
-                 id="dPath" />
+                 :id="`bar-${p[3]}-${p[4]}`" />
               </template> 
             </g>
           </svg>          
@@ -139,16 +139,15 @@
              height:720,
              width:1280,
              padding:20,
-             overlap:5,
              download:"simplecurve.svg",
-             points: `-7,-7 -3,3 3,-3 7,7`,
+             points: `1,90 2,75 3,120 4,60 5,80`,
              xMin:0,
-             xMax:0,
+             xMax:5.5,
              yMin:0,
              yMax:0,
-             xLines: "5 -5",
-             yLines: "5 -5",
-             zoomOut: 10,
+             xLines: "",
+             yLines: "50 100",
+             zoomOut: 5,
           }
         },
         mounted() {
@@ -199,7 +198,7 @@
                 let parsed = this.parsed
 
                 //xpct,ypath,ysign (-1,1)
-                let pctPath = parsed.points.map(p=> [((p[0]-parsed.xMin)/parsed.xDist),(((p[1]-parsed.yMin)/parsed.yDist)),(Math.abs(p[1])/p[1])])
+                let pctPath = parsed.points.map(p=> [((p[0]-parsed.xMin)/parsed.xDist),(((p[1]-parsed.yMin)/parsed.yDist)),(Math.abs(p[1])/p[1]),p[0],p[1]])
               
                 return pctPath  
               },
