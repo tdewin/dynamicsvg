@@ -31,7 +31,7 @@
                id="layer1"
               >
               <rect
-                :style="`fill:${mainColor[0]};fill-opacity:${mainColor[1]};stroke:none;stroke-width:19.0448;stroke-linecap:square;stroke-linejoin:round;stroke-dasharray:38.0898, 19.0448, 38.0898, 19.0448, 57.1348, 19.0448, 19.0448, 19.0448;stroke-dashoffset:0;paint-order:markers fill stroke;stop-color:#000000`"
+                :style="`fill:${colors.main.c};fill-opacity:${colors.main.t/100};stroke:none;stroke-width:19.0448;stroke-linecap:square;stroke-linejoin:round;stroke-dasharray:38.0898, 19.0448, 38.0898, 19.0448, 57.1348, 19.0448, 19.0448, 19.0448;stroke-dashoffset:0;paint-order:markers fill stroke;stop-color:#000000`"
                  id="rect7291"
                  :width="width"
                  :height="height"
@@ -41,17 +41,17 @@
                  rx="0" />
 
               <path v-for="y in pctYLines"
-                 :style="`fill:none;stroke:${lightAxisColor[0]};stroke-width:5;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:${lightAxisColor[1]}`"
+                 :style="`fill:none;stroke:${colors.bgAxes.c};stroke-width:5;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:${colors.bgAxes.t/100}`"
                     :d="`M ${padding},${padding + (innerHeight)*(1-y)} h ${innerWidth}`"
                     :id="`yAxis-${y}`" />
               <path v-for="x in pctXLines"
-                 :style="`fill:none;stroke:${lightAxisColor[0]};stroke-width:5;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:${lightAxisColor[1]}`"
+                 :style="`fill:none;stroke:${colors.bgAxes.c};stroke-width:5;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:${colors.bgAxes.t/100}`"
                    :d="`M ${padding + (innerWidth)*x },${padding} v ${innerHeight}`"
                     :id="`xAxis-${x}`" />
 
               <!-- x axis-->
               <path
-              :style="`fill:none;stroke:${lightColor[0]};stroke-width:5;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:${lightColor[1]}`"
+              :style="`fill:none;stroke:${colors.mainAxes.c};stroke-width:5;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:${colors.mainAxes.t/100}`"
                  :d="`M ${padding},${padding + (innerHeight)*(1-parsed.yOrigin)} h ${innerWidth}`"
                  id="yAxis" />
 
@@ -59,30 +59,40 @@
 
               <!-- y axis-->
               <path
-              :style="`fill:none;stroke:${lightColor[0]};stroke-width:5;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:${lightColor[1]}`"
+              :style="`fill:none;stroke:${colors.mainAxes.c};stroke-width:5;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:${colors.mainAxes.t/100}`"
                 :d="`M ${padding + (innerWidth)*parsed.xOrigin },${padding} v ${innerHeight}`"
                  id="xAxis" />
      
-              
-
-              <path
-              :style="`fill:none;fill-opacity:1;stroke:${pathColor[0]};stroke-width:18.1696;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:${pathColor[1]}`"
+            
+              <path v-if="selectDrawMode == 0"
+              :style="`fill:none;fill-opacity:1;stroke:${colors.path.c};stroke-width:18.1696;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:${colors.path.t/100}`"
                  :d="`M ${pctPath.map(p=> ((innerWidth)*p[0]+padding)+','+((innerHeight)*(1-p[1])+padding)).join(' ')}`"
                  id="dPath" />
+              <template v-else-if="selectDrawMode == 1">   
+                <path v-for="p in pctPath"
+              :style="`fill:${colors.path.c};fill-opacity:1;stroke:${colors.path.c};stroke-width:0;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:${colors.path.t/100}`"
+                 :d="`M ${((innerWidth)*p[0]+padding-blockWidth/2)},${((innerHeight)*(1-p[1])+padding)} h ${blockWidth} V ${padding + (innerHeight)*(1-parsed.yOrigin)+3*(p[2])} h ${-blockWidth} z`"
+                 id="dPath" />
+              </template> 
             </g>
           </svg>          
         </div>
-        <div class="d-block">{{pctYLines}} {{parsed}}</div>
-        <div class="d-block"><input class="m-1" :style="`background-color:${mainColor[0]}`"   v-model="mainColorWA"/>(main color)</div>
-        <div class="d-block"><input class="m-1" :style="`background-color:${pathColor[0]}`"   v-model="pathColorWA"/>(path color)</div>
-        <div class="d-block"><input class="m-1" :style="`background-color:${lightColor[0]}`"   v-model="lightColorWA"/>(light color)</div>
-        <div class="d-block"><input class="m-1" :style="`background-color:${lightAxisColor[0]}`"   v-model="lightAxisColorWA"/>(light extra axis color)</div>
+        <div class="d-block">{{selectDrawMode}}</div>
+        <div class="d-block"  v-for="(c, n) in colors">
+          <input class="m-1" v-model="c.c" type="color"><input class="m-1" v-model="c.c"> <input class="m-1" type="number" min="0" max="100" v-model="c.t">({{n}} color )
+         
+        </div>
+
         <div class="d-block"><input class="m-1"   v-model="zoomOut"/>(zoom out from main points)</div>
         <div class="d-block">
-          <textarea v-model="points" cols="30" rows="10">
+          <textarea class="m-1"  v-model="points" cols="30" rows="10">
 
           </textarea>
         </div>
+        <div class="d-block"><select v-model="selectDrawMode" class="m-1" ><option v-for="option,i in drawMode" :value="i">{{ option }}</option></select></div>
+        <div class="d-block" v-if="selectDrawMode == 1"><input class="m-1" type="number"    v-model="blockWidth"/>(width of block)</div>
+
+
         <div class="d-block"><input class="m-1"  v-model="xMin"/><input class="m-1" v-model="xMax"/><input class="m-1"  v-model="yMin"/><input class="m-1"  v-model="yMax"/>(xMin,xMax,yMin,yMax)</div>
         <div class="d-block"><input class="m-1"   v-model="xLines"/>(x lines parallel with y axis)</div>
         <div class="d-block"><input class="m-1"   v-model="yLines"/>(y lines parallel with x axis)</div>
@@ -117,22 +127,27 @@
       createApp({
         data() {
           return {
-             mainColorWA: "#0077ccff",
-             pathColorWA: "#e55",
-             lightColorWA: "#eeeeeeff",
-             lightAxisColorWA: "##55aaffff",
-             height:600,
-             width:1000,
+             colors:{
+               main: {c:"#0077cc",t:100},
+               path: {c:"#ee5555",t:100},
+               mainAxes: {c:"#eeeeee",t:100},
+               bgAxes: {c:"#55aaff",t:100},
+             },
+             drawMode:["path","block"],
+             selectDrawMode:1,
+             blockWidth:80,
+             height:720,
+             width:1280,
              padding:20,
              overlap:5,
              download:"simplecurve.svg",
              points: `-7,-7 -3,3 3,-3 7,7`,
-             xMin:-10,
-             xMax:10,
-             yMin:-10,
-             yMax:10,
-             xLines: "-10 -5 5 10",
-             yLines: "-10 -5 5 10",
+             xMin:0,
+             xMax:0,
+             yMin:0,
+             yMax:0,
+             xLines: "5 -5",
+             yLines: "5 -5",
              zoomOut: 10,
           }
         },
@@ -154,10 +169,6 @@
               innerWidth() {
                 return this.width-(this.padding*2)
               },
-              mainColor() { return convertAlphaColor(this.mainColorWA)},
-              pathColor() { return convertAlphaColor(this.pathColorWA)},
-              lightColor() { return convertAlphaColor(this.lightColorWA)},
-              lightAxisColor() { return convertAlphaColor(this.lightAxisColorWA)},
               parsed() {
                 let p = [...this.points.matchAll(coordinates)].map(m => [parseFloat(m[1]),parseFloat(m[2])]).sort((a,b)=> a[0] - b[0])
                 //by starting with 0, the origin will always be in place
@@ -187,9 +198,9 @@
               pctPath() {
                 let parsed = this.parsed
 
-                let pctPath = parsed.points.map(p=> [((p[0]-parsed.xMin)/parsed.xDist),(((p[1]-parsed.yMin)/parsed.yDist))])
-                
-            
+                //xpct,ypath,ysign (-1,1)
+                let pctPath = parsed.points.map(p=> [((p[0]-parsed.xMin)/parsed.xDist),(((p[1]-parsed.yMin)/parsed.yDist)),(Math.abs(p[1])/p[1])])
+              
                 return pctPath  
               },
               pctXLines() {
