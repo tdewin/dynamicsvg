@@ -70,7 +70,7 @@
                  id="dPath" />
               <template v-else-if="selectDrawMode == 1">   
                 <path v-for="p in pctPath"
-              :style="`fill:${colors.path.c};fill-opacity:1;stroke:${colors.path.c};stroke-width:0;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:${colors.path.t/100}`"
+              :style="`fill:${colors.path.c};fill-opacity:${colors.path.t/100};stroke:${colors.path.c};stroke-width:0;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:0`"
                  :d="`M ${((innerWidth)*p[0]+padding-blockWidth/2)},${((innerHeight)*(1-p[1])+padding)} h ${blockWidth} V ${padding + (innerHeight)*(1-parsed.yOrigin)+3*(p[2])} h ${-blockWidth} z`"
                  id="dPath" />
               </template> 
