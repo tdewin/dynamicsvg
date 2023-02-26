@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+
+    <title>Round mask</title>
+  </head>
+  <body>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+    <div id="app">
+        
+        <div id="svgcontainer"  class="d-inline-block" ref="svgcontainer" @click="trackXY" tabindex="0"  @keyup.esc="pointerOn = false" @mousemove="trackMXY" @wheel="wheel" @mouseleave="pointerOn = false" >
+          <svg
+          :width="width"
+          :height="height"
+          :viewBox="`0 0 ${width} ${height}`"
+          version="1.1"
+          id="svg5"
+          inkscape:version="1.2.1 (9c6d41e410, 2022-07-14)"
+          xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+          xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+          xmlns="http://www.w3.org/2000/svg"
+          xmlns:svg="http://www.w3.org/2000/svg">
+         <g
+            inkscape:label="Layer 1"
+            inkscape:groupmode="layer"
+            id="layer1">
+           <image :href="url" x="0" y="0" :width="width" :height="height" v-if="showIMG" />
+           <path v-if="modeSelect == 'circle'"
+              :style="`fill:${ringColor};opacity:${parseFloat(opacity)/100};stroke:none;stroke-width:0;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;stroke-dasharray:none`"
+              :d="`M 0 0 h ${width} v ${height} h ${-width}  v ${-height} z 
+              M ${x-rp} ${y} A 1 1 0 0 0 ${x+rp} ${y}  A 1 1 0 0 0 ${x-rp} ${y} z`"
+              id="maskcircle"  />
+
+           <path v-else-if="modeSelect == 'rect'"
+              :style="`fill:${ringColor};opacity:${parseFloat(opacity)/100};stroke:none;stroke-width:0;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;stroke-dasharray:none`"
+              :d="`M 0 0 h ${width} v ${height} h ${-width}  v ${-height} z 
+              M ${x-rp/2} ${y-h/2} v ${h*1} h ${rp} v ${h*-1} z`"
+              id="maskrect"  />
+
+            <circle v-if="modeSelect == 'circle' && pointerOn" :cx="mx" :cy="my" :r="rp" :style="`fill:#ffffff;opacity:0.7`"></circle>
+            <path v-else-if="modeSelect == 'rect' && pointerOn" :d="`M ${mx-rp/2} ${my-h/2} v ${h*1} h ${rp} v ${h*-1} z`" :style="`fill:#ffffff;opacity:0.7`" />
+
+            <circle v-if="modeSelect == 'circle' && pointerOn" :cx="mx" :cy="my" :r="5" :style="`fill:#ff5555;opacity:1`" ></circle>
+            <circle v-if="modeSelect == 'rect' && pointerOn" :cx="mx" :cy="my" :r="5" :style="`fill:#ff5555;opacity:1`" ></circle>
+         </g>
+       </svg>
+        </div>
+
+        
+        <div class="d-block"><select  v-model="modeSelect"><option v-for="o in modes">{{o}}</option></select>(mode: {{modeSelect}})</div>
+        <div class="d-block"><input class="m-1" type="number"  v-model="x"/>(x center)</div>
+        <div class="d-block"><input class="m-1" type="number"  v-model="y"/>(y center)</div>
+        <div class="d-block"><input class="m-1" type="number"  v-model="r"/><input class="m-1" type="range" min="1" max="740" v-model="r"/>(r circle / width rect)</div>
+        <div class="d-block" v-if="modeSelect == 'rect'"><input class="m-1" type="number"  v-model="ratio"/><input class="m-1" type="range" min="1" max="1500" v-model="ratio"/>(ratio width / height)</div>
+        <div class="d-block"><input class="m-1" type="number" min="10"  v-model="height"/>(height)</div>
+        <div class="d-block"><input class="m-1" type="number" min="10"  v-model="width"/>(width)</div>
+       
+        
+        <div class="d-block">
+          <input class="m-1" type="color" :style="`background-color:${ringColor}`" v-model="ringColor"/>
+          <input class="m-1" type="text" v-model="ringColor"/>
+          <input class="m-1" type="number" min="0" max="100" v-model="opacity"/>
+        (mask color)</div>
+
+        <div class="d-block">
+          <input class="m-1" type="file" @change="onFileChange"/> 
+          <input class="m-1" type="checkbox" v-model="showIMG"/>Show Image (disable before download)
+        </div>
+        
+        <div class="d-block"><input class="m-1"  v-model="download"/>(file name)</div>
+        <a class="m-1 btn btn-primary" id="downloadButton" :download="downloadName" >Download</a>
+
+    </div>
+    
+    <script>
+      const { createApp } = Vue
+    
+      
+      function downloadSVG() {
+        blob = new Blob([document.getElementById("svgcontainer").innerHTML], {type: "octet/stream"});
+        document.getElementById("downloadButton").href = window.URL.createObjectURL(blob);
+      }
+
+      createApp({
+        data() {
+          return {
+             r:50,
+             ratio:100,
+             opacity:100,
+             height:720,
+             width:1280,
+             x: 1280/2,
+             mx: 1280/2,
+             y: 720/2,
+             my: 720/2,
+             pointerOn:false,
+             modes: ["circle","rect"],
+             modeSelect: "circle",
+             ringColor:"#66ff66",
+             download:"mask",
+             url:null,
+             showIMG:false,
+          }
+        },
+        mounted() {
+            //hacky code by that just the way it is, using data update create a loop
+            this.$nextTick(() => {
+                downloadSVG()
+            })
+        },
+        updated() {
+            //hacky code by that just the way it is, using data update create a loop
+            this.$nextTick(() => {
+                downloadSVG()
+            })
+        },
+        methods: {
+          trackXY(event) {
+            if(this.pointerOn) {
+              this.x = event.offsetX
+              this.y = event.offsetY
+            }
+            this.pointerOn = !this.pointerOn
+          },
+          trackMXY(event) {
+            this.mx = parseInt(event.offsetX)
+            this.my = parseInt(event.offsetY)
+          },
+          wheel(event) {
+            if(this.pointerOn) {
+              event.preventDefault();
+              this.r = Math.min(Math.max(parseInt(this.r + (event.deltaY / 20)),0),this.height);
+            }
+          },
+          onFileChange(e) {
+            const file = e.target.files[0];
+            this.url = URL.createObjectURL(file);
+          }
+        },
+        computed: {
+          rp() { return parseInt(this.r) },
+          h() { return Math.round((this.r)*(parseFloat(this.ratio))/100) },
+          downloadName() { return `${this.download}.svg`}
+        }
+      }).mount('#app')
+    </script>
+  </body>
+</html>
+
+
