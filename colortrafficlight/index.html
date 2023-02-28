@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+
+    <title>Traffic Light color scheme</title>
+  </head>
+  <body>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+    <div id="app">
+        
+
+
+        <div class="d-block"><input type="file" v-on:change="loadFile"/><a class="m-1 btn btn-primary" @click="processFile()">Process</a></div>
+        <div class="d-block"><input class="m-1" type="number"  v-model="r"/><input class="m-1" type="range" min="1" max="740" v-model="r"/>(r circle / width rect)</div>
+
+        <div class="d-block">
+          <input class="m-1" type="color" :style="`background-color:${ringColor}`" v-model="ringColor"/>
+          <input class="m-1" type="text" v-model="ringColor"/>
+          <input class="m-1" type="number" min="0" max="100" v-model="opacity"/>
+        (traffic light color)</div>
+
+        <div class="d-block">
+          <input class="m-1" type="number" min="1" max="100" v-model="maxColors" @change="evalColorStorage"/>(max color)</div>
+        <div class="d-block">
+            <input class="m-1" type="checkbox" v-model="left" />(left text)
+            <input class="m-1" type="checkbox" v-model="inverse" />(inverse)
+            <input class="m-1" type="checkbox" v-model="levels" />(levels)
+          </div>
+        <div class="d-block"  v-for="(c, n) in colors">
+          <input class="m-1" v-model="c.c" type="color">
+            <input class="m-1" v-model="c.c">
+            <input class="m-1" type="number" min="0" max="100" v-model="c.t">
+            <input class="m-1" v-model="c.n">
+            <input class="m-1" type="button" value="x" @click="rm(n)">
+            <input class="m-1" type="button" value="cc" @click="clone(c,n)">
+        </div>
+        
+        <div class="d-block"><input class="m-1"  v-model="download"/>(file name)</div>
+        <div class="d-block"><a class="m-1 btn btn-primary" id="downloadButton" :download="downloadName" >Download</a></div>
+
+
+        <div id="svgcontainer"  class="d-inline-block" ref="svgcontainer" >
+          <svg
+          :width="width"
+          :height="height"
+          :viewBox="`0 0 ${width} ${height}`"
+          version="1.1"
+          id="svg5"
+          inkscape:version="1.2.1 (9c6d41e410, 2022-07-14)"
+          xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+          xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+          xmlns="http://www.w3.org/2000/svg"
+          xmlns:svg="http://www.w3.org/2000/svg">
+
+          
+         <g
+            inkscape:label="Layer 1"
+            inkscape:groupmode="layer"
+            id="layer1">
+            
+            
+           <path
+              :style="`fill:${ringColor};opacity:${parseFloat(opacity)/100};stroke:none;stroke-width:0;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;stroke-dasharray:none`"
+              :d="`M ${offsetX+4*rp} ${2*rp} v ${(rp*3)*(n-1)} a 1 1 90 0 1 ${-4*rp} 0 v -${(rp*3)*(n-1)} a 1 1 90 0 1 ${4*rp} 0 `"
+              id="trafficlight"  />
+         <g v-for="c,n in colors" :id="`group-color-${c.c.replace('#','')}`">
+             
+            <circle v-if="levels"   :id="`color-${c.c.replace('#','')}`"  :cx="offsetX+r*1" :cy="(rp*2)+(rp*3)*(n)" :r="rp/2"  :style="`fill:rgb(${lightDelta(rgb(c.c),-10).join(',')});opacity:${parseFloat(c.t)/100};stroke:none;stroke-width:0;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;stroke-dasharray:none`"/>
+            <circle v-if="levels"  :id="`color-${c.c.replace('#','')}`"  :cx="offsetX+r*3" :cy="(rp*2)+(rp*3)*(n)" :r="rp/2"  :style="`fill:rgb(${lightDelta(rgb(c.c),10).join(',')});opacity:${parseFloat(c.t)/100};stroke:none;stroke-width:0;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;stroke-dasharray:none`"/>
+            
+            <circle   :id="`color-${c.c.replace('#','')}`"  :cx="offsetX+r*2" :cy="(rp*2)+(rp*3)*(n)" :r="rp"  :style="`fill:${c.c};opacity:${parseFloat(c.t)/100};stroke:none;stroke-width:0;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;stroke-dasharray:none`"/>
+           
+            
+            <text  :id="`text-color-${c.c.replace('#','')}`" :x="(left?5:rp*5)" :y="(rp*2)+(rp*3)*(n)-10" style="font-size:18px;font-family:Cascadia Mono, monospace">{{c.n}}</text>
+            <text :id="`text-color-${c.c.replace('#','')}`" :x="(left?5:rp*5)" :y="(rp*2)+(rp*3)*(n)+5" style="font-size: 14px;font-family:Cascadia Mono,monospace">{{c.c}}</text>
+            <text :id="`text-color-${c.c.replace('#','')}`" :x="(left?5:rp*5)" :y="(rp*2)+(rp*3)*(n)+20" style="font-size: 14px;font-family:Cascadia Mono, monospace">rgb({{rgb(c.c).join(",")}})</text>
+          </g>
+       </svg>
+        </div>
+    </div>
+    
+    <script>
+      const { createApp } = Vue
+    
+      
+      const colorRegex = /(#[a-fA-F0-9]{3}[a-fA-F0-9]{3}?)[^a-fA-F0-9]/mg
+
+      function downloadSVG() {
+        blob = new Blob([document.getElementById("svgcontainer").innerHTML], {type: "octet/stream"});
+        document.getElementById("downloadButton").href = window.URL.createObjectURL(blob);
+      }
+
+      createApp({
+        data() {
+          return {
+             fileContent:null,
+             left:true,
+             levels:false,
+             inverse:false,
+             loaded:false,
+             r:20,
+             opacity:100,
+             x: 1280/2,
+             mx: 1280/2,
+             y: 720/2,
+             my: 720/2,
+             maxColors:3,
+             textWidth:150,
+             ringColor:"#1c2433",
+             colorsStorage:[
+              {c:"#eb7c60",t:100,n:"Negative"},
+              {c:"#ebd460",t:100,n:"Neutral"},
+              {c:"#80eb60",t:100,n:"Positive"},
+              {c:"#1c2433",t:100,n:"Background"},
+             ],
+             download:"trafficlight",
+          }
+        },
+        mounted() {
+            //hacky code by that just the way it is, using data update create a loop
+            this.$nextTick(() => {
+                downloadSVG()
+            })
+        },
+        updated() {
+            //hacky code by that just the way it is, using data update create a loop
+            this.$nextTick(() => {
+                downloadSVG()
+            })
+        },
+        methods: {
+          clone(c,n) {
+            this.colorsStorage.splice(n, 0, JSON.parse(JSON.stringify(c)));
+            this.maxColors++
+          },
+          rm(n) {
+            let s = this.colorsStorage.filter((c,i) => i != n)
+            if (s.length > 0) {
+              this.colorsStorage = s
+              this.maxColors = this.maxColors > 1?this.maxColors-1:1
+            }
+          },
+          evalColorStorage() {
+            if(this.colorsStorage.length < this.maxColors) {
+              this.colorsStorage.push({c:this.ringColor,t:100,n:""})
+            }
+          },
+          rgb(hex) {
+            const htd = h => parseInt(h, 16);
+            var res = [0,0,0]
+            if(hex.length==7) {
+              res = [(htd(hex[1])*16+htd(hex[2])),(htd(hex[3])*16+htd(hex[4])),(htd(hex[5])*16+htd(hex[6]))]
+            } else if (hex.length==4) {
+              res = [(htd(hex[1])*16+htd(hex[1])),(htd(hex[2])*16+htd(hex[2])),(htd(hex[3])*16+htd(hex[3]))]
+            }
+            return res
+          },
+          rgbToHsl(rgb) {
+            //https://gist.github.com/mjackson/5311256
+            mr = (i) => i*1.0/255
+
+            const  r = mr(rgb[0]), g = mr(rgb[1]), b = mr(rgb[2]);
+
+            var max = Math.max(r, g, b), min = Math.min(r, g, b);
+            var h, s, l = (max + min) / 2;
+
+            if (max == min) {
+              h = s = 0; // achromatic
+            } else {
+              var d = max - min;
+              s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+
+              switch (max) {
+                case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+                case g: h = (b - r) / d + 2; break;
+                case b: h = (r - g) / d + 4; break;
+              }
+
+              h /= 6;
+            }
+
+            return [ h, s, l];
+          },
+          hslToRgb(hsl) {
+            const h = hsl[0], s = hsl[1], l = hsl[2]
+            var r, g, b;
+
+            if (s == 0) {
+              r = g = b = l; // achromatic
+            } else {
+              function hue2rgb(p, q, t) {
+                if (t < 0) t += 1;
+                if (t > 1) t -= 1;
+                if (t < 1/6) return p + (q - p) * 6 * t;
+                if (t < 1/2) return q;
+                if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+                return p;
+              }
+
+              var q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+              var p = 2 * l - q;
+
+              r = hue2rgb(p, q, h + 1/3);
+              g = hue2rgb(p, q, h);
+              b = hue2rgb(p, q, h - 1/3);
+            }
+
+            mr = (f) => Math.round(f*255)
+            return [ mr(r), mr(g), mr(b) ];
+          },
+          lightDelta(rgb,delta) {
+            let hsl = this.rgbToHsl(rgb)
+            hsl[2] = Math.min(Math.max((hsl[2]+(parseFloat(delta)*0.01)),0),1)
+            let rgbOut = this.hslToRgb(hsl)
+            return rgbOut
+          },
+          async processFile() {
+            let counter = 10
+            while(!this.loaded && counter-- > 0) {
+              console.log("loading")
+              await new Promise(r => setTimeout(r, 1000));
+            }
+            colors = Array.from(new Set(Array.from(this.fileContent.matchAll(colorRegex)).map(m => m[1]))).map((c,i)=> {return {c:c.toLowerCase(),t:100,n:i}})
+            if (colors.length > 0) {
+              this.colorsStorage = colors
+              this.maxColors = colors.length
+            }
+          },
+          loadFile(ev) {
+            this.loaded = false;
+            const file = ev.target.files[0];
+            const reader = new FileReader();
+            reader.onload = e => {this.loaded = true; this.fileContent = e.target.result};
+            reader.readAsText(file);
+          }
+        },
+        computed: {
+          rp() { return parseInt(this.r) },
+          downloadName() { return `${this.download}.svg`},
+          width() { return this.rp*5+this.textWidth },
+          offsetX() { return this.left?this.textWidth:0},
+          height() { return this.rp*3 *(this.colors.length)+this.rp},
+          n() { return this.colors.length},
+          d() { return this.rp*2},
+          colors() { let cs = this.colorsStorage.slice(0,this.maxColors); return this.inverse?cs.reverse():cs}
+        }
+      }).mount('#app')
+    </script>
+  </body>
+</html>
+
+
